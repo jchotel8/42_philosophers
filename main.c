@@ -12,11 +12,37 @@
 
 #include "./includes/philo.h"
 
+int	ft_init_start(t_data *data)
+{
+	gettimeofday(&data->start, NULL);
+	return (0);
+}
+
 int main(int ac, char **av)
 {
-	t_philo *philo;
-	if (ac > 0 && av[1])
-		philo = init_table(6);
-	debug_list(philo, 5);
-	//action(philo, 5);
+	t_data data;
+	int i;
+
+	if (ac != 5 && ac != 6)
+		return (ft_error("missing arguments"));
+	if (init_data(ac, av, &data))
+		return (FAIL);
+	i = 0;
+	while (i < data.n_philo)
+	{
+		pthread_create(data.philo[i].thr, NULL, action, NULL);
+		i++;
+	}
+	i = 0;
+	while (i < data.n_philo)
+	{
+		pthread_join(*data.philo[i].thr, NULL);
+		i++;
+	}
+	//infos(&data, "philosophers are ready");
+	
 }
+
+
+
+// THREAD ET MUTEX : https://franckh.developpez.com/tutoriels/posix/pthreads/

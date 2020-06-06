@@ -12,77 +12,17 @@
 
 #include "../includes/philo.h"
 
-int nb_fork(t_philo *philo)
-{
-	if (philo->prev->state != EATING && philo->next->state != EATING)
-		return (2);
-	else if (philo->prev->state != EATING || philo->next->state != EATING)
-		return (1);
-	return (0);
-}
+// void infos(t_data *data, char *str)
+// {
+// 	struct timeval 	time;
 
-void	eat(t_philo *philo)
-{
-	int time;
+// 	gettimeofday(&time, NULL);
+// 	ft_printf("%lds %ldms : %s\n", time.tv_sec - data->start.tv_sec, 
+// 		(time.tv_usec - data->start.tv_usec) / 1000, str);
+// }
 
-	time = 0;
-	while (philo->state == EATING && time++ < EAT_TIME && philo->life < LIFE_POINT)
-	{
-		//attendre 1seconde
-		philo->life++;
-	}
-	printf("- %d is sleeping\n", philo->id);
-	philo->state = SLEEPING;
-		//sleep(philo);
-}
-//
-//void	sleep(t_philo *philo)
-//{
-//	int	time;
-//
-//	time = 0;
-//	philo->state = SLEEPING;
-//	while (philo->state != DEAD && time++ < SLEEP_TIME)
-//	{
-//		//attendre 1s;
-//		philo->life--;
-//		if (philo->life <= 0)
-//			philo->state = DEAD;
-//	}
-//	if (philo->state != DEAD)
-//		think(philo);
-//}
-//
-//void	think(t_philo *philo)
-//{
-//	int time;
-//
-//	time = 0;
-//	philo->state = THINKING;
-//	while (time++ < THINK_TIME)
-//	{
-//		//attendre 1s
-//		philo->life--;
-//		if (philo->life <= 0)
-//			philo->state = DEAD;
-//	}
-//	if (philo->state != DEAD)
-//		eat(philo);
-//}
-//
-//void	start_cycle(t_philo *philo)
-//{
-//	if (philo->next->state == EAT || philo->prev->state == EAT)
-//	else if ()
-//}
-
-void action(t_philo *philo, int taille)
+void *action(void *i)
 {
-	eat(philo);
-	while (taille > 0)
-	{
-		philo = philo->next;
-		eat(philo);
-		taille--;
-	}
+	ft_printf("My philo is : \n");
+	return(NULL);
 }

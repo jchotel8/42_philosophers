@@ -12,74 +12,58 @@
 
 #include "../includes/philo.h"
 
-void	debug(t_philo *philo)
+int init_fork(t_data *data)
 {
-	printf("---------------------\n");
-	printf("id :\t%d\n", philo->id);
-	printf("life :\t%i\n", philo->life);
-	printf("state :\t%i\n", philo->state);
-	if (philo->prev)
-		printf("prev :\t%d\n", philo->prev->id);
-	if (philo->next)
-		printf("next :\t%d\n", philo->next->id);
+	int forks;
+	int i;
+
+	i = 0;
+	forks = (data->n_philo == 1 ? 2 : data->n_philo);
+	if ((data->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * forks)) == NULL)
+		return (FAIL);
+	while (i < forks)
+	{
+		pthread_mutex_init(&data->forks[i], NULL);
+		pthread_mutex_unlock(&data->forks[i]);
+		i++;
+	}
+	return (SUCCESS);
 }
 
-void debug_list(t_philo *philo, int taille)
+int init_philo(t_data *data)
 {
-	debug(philo);
-	while (taille > 0)
+	int i;
+
+	i = 0;
+	char *str = "bonjour";
+	if ((data->philo = (t_philo *)malloc(sizeof(t_philo) * data->n_philo)) == NULL)
+		return (FAIL);
+	while (i < data->n_philo)
 	{
-		philo = philo->next;
-		debug(philo);
-		taille--;
+		data->philo[i].id = i;
+		data->philo[i].state = THINKING;
+		data->philo[i].fork_l = &data->forks[i];
+		data->philo[i].fork_r = (i == data->n_philo - 1 && data->n_philo != 1 ? &data->forks[0] : &data->forks[i + 1]);
+		//pthread_create(data->philo[i].thr, NULL, action, &str);
+		//pthread_mutex_init(&data->philo[i].thread, NULL);
+		//pthread_mutex_unlock(&data->philo[i].thread);
+		i++;
 	}
+	return (SUCCESS);
 }
 
-t_philo	*init_list(int nb_philo, t_philo *prev)
+int init_data(int ac, char **av, t_data *data)
 {
-	t_philo *philo;
-
-	if (nb_philo <= 0)
-		return (0);
-	if ((philo = (t_philo *)malloc(sizeof(t_philo))))
-	{
-		philo->id = --nb_philo + 1;
-		philo->life = LIFE_POINT;
-		philo->prev = prev;
-		philo->next = init_list(nb_philo, philo);
-	}
-	return (philo);
-}
-
-void	init_state(t_philo *philo, int taille)
-{
-	while (taille > 0)
-	{
-		if (nb_fork(philo) == 2)
-			philo->state = EATING;
-		else if (nb_fork(philo) == 1)
-			philo->state = THINKING;
-		else
-			philo->state = SLEEPING;
-		philo = philo->next;
-		taille--;
-	}
-}
-
-t_philo *init_table(int nb_philo)
-{
-	t_philo *last;
-	t_philo *philo;
-
-	philo = init_list(nb_philo, NULL);
-	last = philo;
-	while (last && last->next)
-		last = last->next;
-	if(last)
-	{
-		last->next = philo;
-		philo->prev = last;
-	}
-	init_state(philo, nb_philo);
-	return (philo);
+	if ((data->n_philo = ft_atoi(av[1])) == 0 ||
+		(data->t_eat = ft_atoi(av[2])) == 0 ||
+		(data->t_think = ft_atoi(av[3])) == 0 ||
+		(data->t_sleep = ft_atoi(av[4])) == 0 ||
+		(ac == 6 && (data->t = ft_atoi(av[5])) == 0))
+		return (free_error("null arguments", data, NULL, NULL));
+	if (init_fork(data))
+		return (free_error("failed to init forks", data, NULL, NULL));
+	if (init_philo(data))
+		return (free_error("failed to init philos", data, data->forks, NULL));
+	gettimeofday(&data->start, NULL);
+	return (SUCCESS);
 }

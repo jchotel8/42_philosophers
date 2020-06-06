@@ -3,82 +3,88 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jchotel <jchotel@student.42.fr>            +#+  +:+       +#+         #
+#    By: jchotel <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2020/01/23 21:42:39 by jchotel           #+#    #+#              #
-#    Updated: 2020/01/24 01:40:43 by jchotel          ###   ########.fr        #
+#    Created: 2019/11/04 11:15:39 by jchotel           #+#    #+#              #
+#    Updated: 2020/03/06 16:34:05 by jchotel          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCSC		=	srcs/action.c\
+# GENERAL ******************************************************************** #
+NAME		= philo.a
+LIBS 		= ./libs/libft/libft.a\
+				./libs/ft_printf/printf.a
+
+# SOURCE ********************************************************************* #			  
+SRCSC		= 	srcs/action.c\
 				srcs/init.c\
-				libs/libft/ft_putstr.c\
-				libs/libft/ft_split.c\
-				libs/libft/ft_strcmp.c\
-				libs/libft/ft_atoi.c\
-				libs/libft/ft_isdigit.c\
-				libs/libft/ft_strjoin.c\
-				libs/libft/ft_isascii.c\
-				libs/libft/ft_strlen.c\
-				libs/libft/ft_strcpy.c\
-				libs/libft/ft_strdup.c\
-				libs/libft/ft_strncmp.c\
-				libs/libft/ft_strnstr.c\
-				libs/libft/ft_strchr.c\
-				libs/libft/ft_stronly.c\
-				libs/libft/ft_calloc.c\
-				libs/libft/ft_lstadd_front.c\
-				libs/libft/ft_lstadd_back.c\
-				libs/libft/ft_lstclear.c\
-				libs/libft/ft_lstdelone.c\
-				libs/libft/ft_lstiter.c\
-				libs/libft/ft_lstlast.c\
-				libs/libft/ft_itoa.c\
-				libs/libft/ft_lstmap.c\
-				libs/libft/ft_lstnew.c\
-				libs/libft/ft_bzero.c\
-				libs/libft/ft_lstrev.c\
-				libs/libft/ft_lstsize.c\
+				main.c\
+				srcs/utils.c
 
 SRCSH		= includes/philo.h
 OBJS		= $(SRCSC:%.c=%.o)
-NAME		= philo.a
+
+# COMMANDES ****************************************************************** #
+FLAGS		= 
 CC			= gcc
 AR			= ar rc
-RM			= rm -f
-CFLAGS		= -Wall -Wextra -Werror
+RM 			= rm -f
+MKDIR		= mkdir
 
-.c.o: ${OBJS}
-	@${CC} ${CFLAGS} -c $< -o ${<:.c=.o}
+# COLORS ********************************************************************* #
+CR			= "\r"$(CLEAR)
+CLEAR       = "\\033[0K"
+BLACK		= "\033[0;30m"
+RED			= "\033[1;31m"
+GREEN		= "\033[1;32m"
+YELLOW		= "\033[1;33m"
+DARKBLUE	= "\033[0;34m"
+VIOLET		= "\033[0;35m"
+BLUE		= "\033[0;36m"
 
-$(NAME):	${OBJS}
-			@echo "\033[1;32m"
-			@echo "┌─┐┬ ┬┌─┐┌─┐┌─┐┌─┐┌─┐"
-			@echo "└─┐│ ││  │  ├┤ └─┐└─┐"
-			@echo "└─┘└─┘└─┘└─┘└─┘└─┘└─┘"
-			@echo "philo.a generated successfully.\033[0;0m"
-			@${AR} ${NAME} ${OBJS} ${SRCSH}
+GREY		= "\033[0;2m"
+BOLDWHITE	= "\033[0;1m"
+WHITE		= "\033[0;0m"
 
+REDB		= "\033[0;41m"
+
+# RULES ********************************************************************** #
 all:		${NAME}
 
+.c.o:
+	@printf $(CR)"[FILE : %s]" $@
+	@${CC} ${FLAGS} -c $< -o $@
+
+libs:		${SRCSH}
+			@printf $(CR)
+			@make bonus -C libs/libft
+			@make -C libs/ft_printf
+
+$(NAME):	libs ${OBJS}
+			@${CC} ${FLAGS} ${OBJS} ${LIBS} -o ${NAME}
+			@echo ${GREEN}${CR}"┌─┐┬ ┬┌─┐┌─┐┌─┐┌─┐┌─┐"
+			@echo 		  	   "└─┐│ ││  │  ├┤ └─┐└─┐"
+			@echo 		  	   "└─┘└─┘└─┘└─┘└─┘└─┘└─┘"
+			@echo ${NAME}" generated successfully." ${WHITE}
+
+bonus:		${NAME}
+
+run:
+			@make
+			@./${NAME} 6
+
 clean:
-			@echo "Deleting .o files.."
-			@${RM} ${OBJS}
+			@make clean -C libs/libft
+			@make clean -C libs/ft_printf
+			@rm -rf ${OBJS} objs
+			@echo ${RED}${NAME}" : Removing .o files" ${WHITE}
 
 fclean:		clean
-			@echo "Deleting binary files.."
-			@${RM} ${NAME}
+			@make bclean -C libs/libft
+			@make bclean -C libs/ft_printf
+			@rm -f ${NAME}
+			@echo ${RED}${NAME}" : Removing binary file" ${WHITE}
 
 re:			fclean all
 
-test-a:		all
-			@${CC} -g -fsanitize=address ${NAME} ${LIBFT} ./main.c -o philo
-			@make clean
-			@./philo 6
-
-test:		all
-			${CC} ${NAME} ${CFLAGS} ${LIBFT} ./main.c -o philo
-			@make clean
-			@./philo
-
-.PHONY:		all clean fclean re
+.PHONY:		all clean fclean re bonus run
