@@ -81,8 +81,8 @@ int			end_thread(t_philo *philos, t_data *data)
 		!= data->n_meals && data->n_meals != 0) || data->n_meals == 0))
 		{
 			sem_wait(philos[i].eating);
-			speak(data->speak, &philos[i], "died\n");
-			sem_post(philos[i].eating);
+			sem_wait(data->speak);
+			philoprintf(get_time(philos->data->start), philos[i].id, "died\n");
 			return (1);
 		}
 		data->n_meals != 0 && data->n_meals <= philos[i].n_meals ? fed += 1 : 0;
