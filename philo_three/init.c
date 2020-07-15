@@ -12,7 +12,7 @@
 
 #include "philo_three.h"
 
-t_philo			*set_philos(t_data *data)
+t_philo		*set_philos(t_data *data)
 {
 	t_philo	*philo;
 	char	*eating;

@@ -58,7 +58,7 @@ t_philo	*init_philo(t_data *data)
 		free(eating);
 		if (philos[i].eating == SEM_FAILED)
 		{
-			free (philos);
+			free(philos);
 			return (NULL);
 		}
 		i++;
