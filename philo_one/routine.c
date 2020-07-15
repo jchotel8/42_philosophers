@@ -57,7 +57,11 @@ int			start_thread(t_philo *philos, t_data *data)
 	while (++i < data->n_philo)
 	{
 		if (pthread_create(&philos[i].thr, NULL, action, (void *)&philos[i]))
+		{
+			free(data);
+			free(philos);
 			return (1);
+		}
 		usleep(TIME);
 	}
 	return (0);

@@ -17,12 +17,16 @@ int		main(int ac, char **av)
 	t_philo	*philos;
 	t_data	*data;
 
-	if ((ac != 5 && ac != 6) || !(data = init_data(ac, av))
-			|| !(philos = init_philo(data)))
+	if ((ac != 5 && ac != 6) || !(data = init_data(ac, av)))
 		return (ft_error(ERR_MSG));
+	if (!(philos = init_philo(data)))
+	{
+		free(data);
+		return (ft_error("Error in init_philo()\n"));
+	}
 	gettimeofday(&data->start, NULL);
 	if (start_thread(philos, data))
-		return (1);
+		return (ft_error("Error starting threads\n"));
 	while (1)
 	{
 		usleep(100);

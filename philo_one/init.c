@@ -16,8 +16,6 @@ int		init_mutex(t_data *data)
 {
 	int i;
 
-	pthread_mutex_init(&data->speak, NULL);
-	pthread_mutex_unlock(&data->speak);
 	if (!(data->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t)
 					* data->n_philo)))
 		return (1);
@@ -28,6 +26,8 @@ int		init_mutex(t_data *data)
 		pthread_mutex_unlock(&data->forks[i]);
 		i++;
 	}
+	pthread_mutex_init(&data->speak, NULL);
+	pthread_mutex_unlock(&data->speak);
 	return (0);
 }
 
@@ -62,13 +62,20 @@ t_data	*init_data(int ac, char **av)
 	if (!(data = (t_data *)malloc(sizeof(t_data))))
 		return (NULL);
 	if ((data->n_philo = ft_atoi(av[1])) == 0 ||
-			(data->t_die = ft_atoi(av[2])) == 0 ||
-			(data->t_eat = ft_atoi(av[3])) == 0 ||
-			(data->t_sleep = ft_atoi(av[4])) == 0 ||
-			(ac == 6 && (data->n_meals = ft_atoi(av[5])) == 0))
+	(data->t_die = ft_atoi(av[2])) == 0 ||
+	(data->t_eat = ft_atoi(av[3])) == 0 ||
+	(data->t_sleep = ft_atoi(av[4])) == 0 ||
+	(ac == 6 && (data->n_meals = ft_atoi(av[5])) == 0))
+	{
+		free(data);
 		return (NULL);
+	}
 	data->n_meals = (ac == 5 ? 0 : data->n_meals);
 	if (init_mutex(data))
+	{
+		free(data->forks);
+		free(data);
 		return (NULL);
+	}
 	return (data);
 }

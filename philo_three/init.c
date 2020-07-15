@@ -12,10 +12,14 @@
 
 #include "philo_three.h"
 
-int			set_philos(t_philo *philo, t_data *data)
+t_philo			*set_philos(t_data *data)
 {
-	int	i;
+	t_philo	*philo;
+	char	*eating;
+	int		i;
 
+	if (!(philo = (t_philo *)malloc(sizeof(t_philo) * data->n_philo)))
+		return (NULL);
 	i = -1;
 	while (++i < data->n_philo)
 	{
@@ -26,19 +30,23 @@ int			set_philos(t_philo *philo, t_data *data)
 		eating = ft_itoa_philo(i);
 		philo[i].eating = sem_open(eating, O_CREAT, 0666, 1);
 		free(eating);
+		if (!philo[i].eating || philo[i].eating == SEM_FAILED)
+		{
+			free(philo);
+			return (NULL);
+		}
 	}
 	gettimeofday(&data->start, NULL);
+	return (philo);
 }
 
 int			init_philos(t_data *data)
 {
 	t_philo		*philo;
 	int			i;
-	char		*eating;
 
-	if (!(philo = (t_philo *)malloc(sizeof(t_philo) * data->n_philo)))
-		return (ft_error("Error: malloc fail\n"));
-	set_philos(philo, data);
+	if (!(philo = set_philos(data)))
+		return (ft_error("Error: init_philos\n"));
 	i = -1;
 	while (++i < data->n_philo)
 	{
@@ -46,7 +54,10 @@ int			init_philos(t_data *data)
 		{
 			if (pthread_create(&philo[i].monitor_thr, NULL,
 			&monitor_routine, &philo[i]) != 0)
+			{
+				free(philo);
 				return (ft_error("Error: pthread failed!\n"));
+			}
 			action(&philo[i]);
 			exit(0);
 		}
@@ -80,7 +91,7 @@ int			init_sema(t_data *data)
 	if (!data->forks || data->forks == SEM_FAILED
 	|| !data->speak || data->speak == SEM_FAILED
 	|| !data->over || data->over == SEM_FAILED)
-		return (ft_error("Error: semaphore not created\n"));
+		return (1);
 	return (0);
 }
 
@@ -91,9 +102,9 @@ int			init_data(t_data *data, int ac, char **av)
 	(data->t_eat = ft_atoi(av[3])) == 0 ||
 	(data->t_sleep = ft_atoi(av[4])) == 0 ||
 	(ac == 6 && (data->n_meals = ft_atoi(av[5])) == 0))
-		return (1);
+		return (ft_error("Error: bad arguments\n"));
 	data->n_meals = (ac == 5 ? 0 : data->n_meals);
 	if (init_sema(data))
-		return (1);
+		return (ft_error("Error: semaphore not created\n"));
 	return (0);
 }

@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "philo_two.h"
+#include <stdio.h>
 
 void		count_meals(t_philo *philo)
 {
@@ -57,7 +58,11 @@ int			start_thread(t_philo *philos, t_data *data)
 	while (++i < data->n_philo)
 	{
 		if (pthread_create(&philos[i].thr, NULL, action, (void *)&philos[i]))
-			return (ft_error("FAILED TO CREATE THREAD\n"));
+		{
+			free(philos);
+			free(data);
+			return (1);
+		}
 		usleep(100);
 	}
 	return (0);
@@ -82,7 +87,7 @@ int			end_thread(t_philo *philos, t_data *data)
 		}
 		data->n_meals != 0 && data->n_meals <= philos[i].n_meals ? fed += 1 : 0;
 	}
-	if (n_fed == data->n_philo)
+	if (fed == data->n_philo)
 	{
 		sem_wait(data->speak);
 		philoprintf(get_time(philos->data->start), -1, "EVERYONE IS FED\n");

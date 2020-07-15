@@ -19,7 +19,7 @@ int		main(int ac, char **av)
 	if (ac != 5 && ac != 6)
 		return (ft_error(ERR_MSG));
 	if (init_data(&data, ac, av))
-		return (ft_error("error: bad arguments\n"));
+		return (1);
 	if (init_philos(&data))
 		return (1);
 	return (0);

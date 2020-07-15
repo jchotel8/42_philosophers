@@ -29,6 +29,12 @@ int		init_sema(t_data *data)
 	data->speak = sem_open("/speak", O_CREAT, 0666, 1);
 	data->forks = sem_open("/forks", O_CREAT, 0666,
 	data->n_philo == 1 ? 2 : data->n_philo);
+	if (!data->speak || data->speak == SEM_FAILED ||
+		!data->forks || data->forks == SEM_FAILED)
+	{
+		free(data);
+		return (1);
+	}
 	return (0);
 }
 
@@ -50,6 +56,11 @@ t_philo	*init_philo(t_data *data)
 		eating = ft_itoa_philo(i);
 		philos[i].eating = sem_open(eating, O_CREAT, 0666, 1);
 		free(eating);
+		if (philos[i].eating == SEM_FAILED)
+		{
+			free (philos);
+			return (NULL);
+		}
 		i++;
 	}
 	return (philos);
@@ -66,7 +77,10 @@ t_data	*init_data(int ac, char **av)
 		(data->t_eat = ft_atoi(av[3])) == 0 ||
 		(data->t_sleep = ft_atoi(av[4])) == 0 ||
 		(ac == 6 && (data->n_meals = ft_atoi(av[5])) == 0))
+	{
+		free(data);
 		return (NULL);
+	}
 	data->n_meals = (ac == 5 ? 0 : data->n_meals);
 	if (init_sema(data))
 		return (NULL);
