@@ -1,10 +1,10 @@
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <pthread.h> 
-#include <semaphore.h> 
 #include <unistd.h> 
+#include <sys/time.h>
+#include <pthread.h>
+#include <stdlib.h>  
+#include <stdio.h> 
+#include <semaphore.h> 
 
-# include <sys/time.h>
 
 //REF : http://jean-luc.massat.perso.luminy.univ-amu.fr/ens/docs/thread-sem.html
 
@@ -24,13 +24,14 @@ typedef struct s_data
    sem_t             *forks;
 
    struct timeval    start;
-   int               status;
+   int               status;   //is it useful ?
 }              t_data;
 
 typedef struct       s_philo
 {
    int               id;
    pthread_t         thr;
+   sem_t             eating;
    long int          t_death;
    int               n_meals;
    t_data            *data;
@@ -243,8 +244,6 @@ int main (int ac, char **av)
     t_data *data;
     pthread_t end;
 
-    int num0 = 0, num1 = 1;
-
    if ((ac != 5 && ac != 6) || !(data = init_data(ac, av))
       || !(philos = init_philo(data)))
       return (1);
@@ -266,3 +265,5 @@ int main (int ac, char **av)
 //IL FAUT PENSER A SEM_UNLINK AU DEBUT
 //Si on veut attendre la fin d'un thread il faut le join. 
 //Ici le programme s'arrête immédiatement après la loop_end
+//les autres threads ne sont pas importants
+//je suis pas certaine que la variable data->status soit réelement utile

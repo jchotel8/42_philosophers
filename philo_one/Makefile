@@ -11,21 +11,24 @@
 # **************************************************************************** #
 
 # GENERAL ******************************************************************** #
-NAME		= philo.a
-LIBS 		= ./libs/libft/libft.a\
-				./libs/ft_printf/printf.a
+NAME		= philo_one
+LIBS 		= 
 
 # SOURCE ********************************************************************* #			  
-SRCSC		= 	srcs/action.c\
-				srcs/init.c\
-				main.c\
-				srcs/utils.c
+SRCS_DIR	= .
+SRCS		= 	main.c\
+				utils.c\
+				init.c\
+				routine.c\
+				libft_1.c\
+				libft_2.c
 
-SRCSH		= includes/philo.h
-OBJS		= $(SRCSC:%.c=%.o)
+SRCSH		= philo_one.h
+OBJS_DIR	= objs
+OBJS		= $(addprefix $(OBJS_DIR)/, $(SRCS:%.c=%.o))
 
 # COMMANDES ****************************************************************** #
-FLAGS		= 
+FLAGS		= -Wall -Werror -Wextra -g -fsanitize=address
 CC			= gcc
 AR			= ar rc
 RM 			= rm -f
@@ -51,17 +54,18 @@ REDB		= "\033[0;41m"
 # RULES ********************************************************************** #
 all:		${NAME}
 
-.c.o:
-	@printf $(CR)"[FILE : %s]" $@
+$(OBJS_DIR)/%.o : $(SRCS_DIR)/%.c | $(OBJS_DIR)
+	@printf ${CR}"[FILE : %s]" $@
 	@${CC} ${FLAGS} -c $< -o $@
+
+$(OBJS_DIR):
+			mkdir -p ${OBJS_DIR}
 
 libs:		${SRCSH}
 			@printf $(CR)
-			@make bonus -C libs/libft
-			@make -C libs/ft_printf
 
 $(NAME):	libs ${OBJS}
-			@${CC} ${FLAGS} ${OBJS} ${LIBS} -o ${NAME}
+			@${CC} ${FLAGS} ${OBJS} ${LIBS} -lpthread -o ${NAME}
 			@echo ${GREEN}${CR}"┌─┐┬ ┬┌─┐┌─┐┌─┐┌─┐┌─┐"
 			@echo 		  	   "└─┐│ ││  │  ├┤ └─┐└─┐"
 			@echo 		  	   "└─┘└─┘└─┘└─┘└─┘└─┘└─┘"
@@ -69,22 +73,23 @@ $(NAME):	libs ${OBJS}
 
 bonus:		${NAME}
 
-run:
-			@make
-			@./${NAME} 6
+#run_infinite:
+#			@./${NAME} 5 5000 1000 2000
+
+#run_meals:
+#			@./${NAME} 5 5000 1000 2000 3
+
+#run_death:
+#			@./${NAME} 5 3000 1000 4000
 
 clean:
-			@make clean -C libs/libft
-			@make clean -C libs/ft_printf
 			@rm -rf ${OBJS} objs
 			@echo ${RED}${NAME}" : Removing .o files" ${WHITE}
 
 fclean:		clean
-			@make bclean -C libs/libft
-			@make bclean -C libs/ft_printf
 			@rm -f ${NAME}
 			@echo ${RED}${NAME}" : Removing binary file" ${WHITE}
 
 re:			fclean all
 
-.PHONY:		all clean fclean re bonus run
+.PHONY:		all clean fclean re bonus run_infinite run_death run_meals
